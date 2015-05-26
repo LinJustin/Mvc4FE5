@@ -3,7 +3,7 @@
     <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <meta charset="utf-8" />
-        <title>@ViewBag.Title - 我的 ASP.NET MVC 應用程式</title>
+        <title>@ViewBag.Title - Justin Learnsity</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
         @Styles.Render("~/Content/css")
@@ -13,7 +13,7 @@
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("您標誌的位置", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink("Justin Learnsity", "Index", "Home")</p>
                 </div>
                 <div class="float-right">
                     <section id="login">
@@ -24,6 +24,10 @@
                             <li>@Html.ActionLink("首頁", "Index", "Home")</li>
                             <li>@Html.ActionLink("關於", "About", "Home")</li>
                             <li>@Html.ActionLink("連絡", "Contact", "Home")</li>
+                            <li>@Html.ActionLink("Students", "Index", "Student")</li>
+                            <li>@Html.ActionLink("Courses", "Index", "Course")</li>
+                            <li>@Html.ActionLink("Instructors", "Index", "Instructor")</li>
+                            <li>@Html.ActionLink("Departments", "Index", "Department")</li>
                         </ul>
                     </nav>
                 </div>
@@ -38,7 +42,7 @@
         <footer>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p>&copy; @DateTime.Now.Year - 我的 ASP.NET MVC 應用程式</p>
+                    <p>&copy; @DateTime.Now.Year - Justin Learnsity</p>
                 </div>
             </div>
         </footer>
