@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Mvc4EF5.Models;
 using Mvc4EF5.DAL;
 
+
 namespace Mvc4EF5.Controllers
 {
     public class StudentController : Controller
@@ -17,10 +18,72 @@ namespace Mvc4EF5.Controllers
         //
         // GET: /Student/
 
-        public ActionResult Index()
+        //public ActionResult Index()
+        //{
+        //    return View(db.Students.ToList());
+        //}
+
+
+        //sort
+        //public ActionResult Index(string sortOrder)
+        //{
+        //    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
+        //    ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
+
+        //    var students = from s in db.Students
+        //                   select s;
+        //    switch (sortOrder)
+        //    {
+        //        case "Name_desc":
+        //            students = students.OrderByDescending(s => s.LastName);
+        //            break;
+        //        case "Date":
+        //            students = students.OrderBy(s => s.EnrollmentDate);
+        //            break;
+        //        case "Date_desc":
+        //            students = students.OrderByDescending(s => s.EnrollmentDate);
+        //            break;
+        //        default:
+        //            students = students.OrderBy(s => s.LastName);
+        //            break;
+        //    }
+        //    return View(students.ToList());
+        //}
+
+        public ViewResult Index(string sortOrder, string searchString)
         {
-            return View(db.Students.ToList());
+            ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
+            ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
+
+            var students = from s in db.Students
+                           select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                students = students.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper())
+                    || s.FirstMidName.ToUpper().Contains(searchString.ToUpper()));
+            }
+
+            switch (sortOrder)
+            {
+                case "Name_desc":
+                    students = students.OrderByDescending(s => s.LastName);
+                    break;
+                case "Date":
+                    students = students.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "Date_desc":
+                    students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    students = students.OrderBy(s => s.LastName);
+                    break;
+            }
+            return View(students.ToList());
+
         }
+
+
 
         //
         // GET: /Student/Details/5
