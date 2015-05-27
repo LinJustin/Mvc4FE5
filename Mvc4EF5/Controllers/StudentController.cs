@@ -48,13 +48,20 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Student student)
+        public ActionResult Create([Bind(Include="LastName, FirstMidName, EnrollmentDate")]Student student)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Students.Add(student);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Students.Add(student);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes.");
             }
 
             return View(student);
@@ -78,13 +85,20 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Student student)
+        public ActionResult Edit([Bind(Include="StudentID,LastName,FirstMidName,EnrollmentDate")]Student student)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(student).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(student).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes.");
             }
             return View(student);
         }
@@ -92,8 +106,12 @@ namespace Mvc4EF5.Controllers
         //
         // GET: /Student/Delete/5
 
-        public ActionResult Delete(int id = 0)
+        public ActionResult Delete(bool? saveChangesError = false, int id = 0)
         {
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewBag.ErrorMessage = "Delete failed.";
+            }
             Student student = db.Students.Find(id);
             if (student == null)
             {
@@ -109,9 +127,16 @@ namespace Mvc4EF5.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Student student = db.Students.Find(id);
-            db.Students.Remove(student);
-            db.SaveChanges();
+            try
+            {
+                Student student = db.Students.Find(id);
+                db.Students.Remove(student);
+                db.SaveChanges();
+            }
+            catch (DataException)
+            {
+                return RedirectToAction("Delete", new { id = id, saveChangesErroe = true });
+            }
             return RedirectToAction("Index");
         }
 
