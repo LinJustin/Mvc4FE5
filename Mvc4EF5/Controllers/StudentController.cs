@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using Mvc4EF5.Models;
 using Mvc4EF5.DAL;
+using PagedList;
 
 
 namespace Mvc4EF5.Controllers
@@ -50,10 +51,54 @@ namespace Mvc4EF5.Controllers
         //    return View(students.ToList());
         //}
 
-        public ViewResult Index(string sortOrder, string searchString)
+        //public ViewResult Index(string sortOrder, string searchString)
+        //{
+        //    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
+        //    ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
+
+        //    var students = from s in db.Students
+        //                   select s;
+
+        //    if (!String.IsNullOrEmpty(searchString))
+        //    {
+        //        students = students.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper())
+        //            || s.FirstMidName.ToUpper().Contains(searchString.ToUpper()));
+        //    }
+
+        //    switch (sortOrder)
+        //    {
+        //        case "Name_desc":
+        //            students = students.OrderByDescending(s => s.LastName);
+        //            break;
+        //        case "Date":
+        //            students = students.OrderBy(s => s.EnrollmentDate);
+        //            break;
+        //        case "Date_desc":
+        //            students = students.OrderByDescending(s => s.EnrollmentDate);
+        //            break;
+        //        default:
+        //            students = students.OrderBy(s => s.LastName);
+        //            break;
+        //    }
+        //    return View(students.ToList());
+
+        //}
+
+        public ViewResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
 
             var students = from s in db.Students
                            select s;
@@ -79,11 +124,13 @@ namespace Mvc4EF5.Controllers
                     students = students.OrderBy(s => s.LastName);
                     break;
             }
-            return View(students.ToList());
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            return View(students.ToPagedList(pageNumber, pageSize));
 
         }
-
-
 
         //
         // GET: /Student/Details/5
@@ -111,7 +158,7 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include="LastName, FirstMidName, EnrollmentDate")]Student student)
+        public ActionResult Create([Bind(Include = "LastName, FirstMidName, EnrollmentDate")]Student student)
         {
             try
             {
@@ -148,7 +195,7 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include="StudentID,LastName,FirstMidName,EnrollmentDate")]Student student)
+        public ActionResult Edit([Bind(Include = "StudentID,LastName,FirstMidName,EnrollmentDate")]Student student)
         {
             try
             {
