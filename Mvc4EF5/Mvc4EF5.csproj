@@ -201,10 +201,25 @@
     <Compile Include="Migrations\201505260716480_InitialCreate.Designer.cs">
       <DependentUpon>201505260716480_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201505280721141_MaxLengthOnNames.cs" />
+    <Compile Include="Migrations\201505280721141_MaxLengthOnNames.Designer.cs">
+      <DependentUpon>201505280721141_MaxLengthOnNames.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201505280726210_ColumnFirstName.cs" />
+    <Compile Include="Migrations\201505280726210_ColumnFirstName.Designer.cs">
+      <DependentUpon>201505280726210_ColumnFirstName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201505300649270_chap4.cs" />
+    <Compile Include="Migrations\201505300649270_chap4.Designer.cs">
+      <DependentUpon>201505300649270_chap4.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Enrollment.cs" />
+    <Compile Include="Models\Instructor.cs" />
+    <Compile Include="Models\OfficeAssignment.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -335,6 +350,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201505260716480_InitialCreate.resx">
       <DependentUpon>201505260716480_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201505280721141_MaxLengthOnNames.resx">
+      <DependentUpon>201505280721141_MaxLengthOnNames.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201505280726210_ColumnFirstName.resx">
+      <DependentUpon>201505280726210_ColumnFirstName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201505300649270_chap4.resx">
+      <DependentUpon>201505300649270_chap4.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
