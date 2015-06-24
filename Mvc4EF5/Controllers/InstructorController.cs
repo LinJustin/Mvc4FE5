@@ -94,12 +94,11 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            Instructor instructor = db.Instructors.Find(id);
-            if (instructor == null)
-            {
-                return HttpNotFound();
-            }
-            ViewBag.InstructorID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.InstructorID);
+            Instructor instructor = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.InstructorID == id)
+                .Single();
+
             return View(instructor);
         }
 
@@ -108,16 +107,36 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Instructor instructor)
+        public ActionResult Edit(int id, FormCollection formCollection)
         {
-            if (ModelState.IsValid)
+            Instructor instructorToUpdate = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.InstructorID == id)
+                .Single();
+
+            if (TryUpdateModel(instructorToUpdate, "",
+                new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
             {
-                db.Entry(instructor).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location))
+                    {
+                        instructorToUpdate.OfficeAssignment = null;
+                    }
+
+                    db.Entry(instructorToUpdate).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                }
+
             }
-            ViewBag.InstructorID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.InstructorID);
-            return View(instructor);
+            ViewBag.InstructorID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", id);
+            return View(instructorToUpdate);
         }
 
         //
