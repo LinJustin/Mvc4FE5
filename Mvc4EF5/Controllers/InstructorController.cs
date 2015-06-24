@@ -96,10 +96,28 @@ namespace Mvc4EF5.Controllers
         {
             Instructor instructor = db.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
                 .Where(i => i.InstructorID == id)
                 .Single();
-
+            PopulateAssignedCourseData(instructor);
             return View(instructor);
+        }
+
+        private void PopulateAssignedCourseData(Instructor instructor)
+        {
+            var allCourses = db.Courses;
+            var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
+            var viewModel = new List<AssignedCourseData>();
+            foreach (var course in allCourses)
+            {
+                viewModel.Add(new AssignedCourseData
+                {
+                    CourseID = course.CourseID,
+                    Title = course.Title,
+                    Assigned = instructorCourses.Contains(course.CourseID)
+                });
+            }
+            ViewBag.Courses = viewModel;
         }
 
         //
@@ -107,12 +125,14 @@ namespace Mvc4EF5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, FormCollection formCollection)
+        public ActionResult Edit(int id, FormCollection formCollection, string[] selectedCourses)
         {
             Instructor instructorToUpdate = db.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
                 .Where(i => i.InstructorID == id)
                 .Single();
+
 
             if (TryUpdateModel(instructorToUpdate, "",
                 new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
@@ -123,6 +143,8 @@ namespace Mvc4EF5.Controllers
                     {
                         instructorToUpdate.OfficeAssignment = null;
                     }
+
+                    UpdateInstructorCourses(selectedCourses, instructorToUpdate);
 
                     db.Entry(instructorToUpdate).State = EntityState.Modified;
                     db.SaveChanges();
@@ -135,10 +157,39 @@ namespace Mvc4EF5.Controllers
                 }
 
             }
-            ViewBag.InstructorID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", id);
+            PopulateAssignedCourseData(instructorToUpdate);
             return View(instructorToUpdate);
         }
 
+        private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
+        {
+            if (selectedCourses == null)
+            {
+                instructorToUpdate.Courses = new List<Course>();
+                return;
+            }
+
+            var selectedCoursesHS = new HashSet<string>(selectedCourses);
+            var instructorCourses = new HashSet<int>
+                (instructorToUpdate.Courses.Select(c => c.CourseID));
+            foreach (var course in db.Courses)
+            {
+                if (selectedCoursesHS.Contains(course.CourseID.ToString()))
+                {
+                    if (!instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Add(course);
+                    }
+                }
+                else
+                {
+                    if (instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Remove(course);
+                    }
+                }
+            }
+        }
         //
         // GET: /Instructor/Delete/5
 
@@ -159,7 +210,12 @@ namespace Mvc4EF5.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Instructor instructor = db.Instructors.Find(id);
+            Instructor instructor = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.InstructorID == id)
+                .Single();
+            instructor.OfficeAssignment = null;
+
             db.Instructors.Remove(instructor);
             db.SaveChanges();
             return RedirectToAction("Index");
