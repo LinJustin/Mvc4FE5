@@ -16,6 +16,7 @@ namespace Mvc4EF5.DAL
         public DbSet<Course> Courses { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
+        public DbSet<Person> People { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -24,7 +25,7 @@ namespace Mvc4EF5.DAL
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Instructors).WithMany(i => i.Courses)
                 .Map(t => t.MapLeftKey("CourseID")
-                    .MapRightKey("InstructorID")
+                    .MapRightKey("PersonID")
                     .ToTable("CourseInstructor"));
         }
     }

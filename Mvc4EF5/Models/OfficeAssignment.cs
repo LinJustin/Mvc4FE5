@@ -11,7 +11,7 @@ namespace Mvc4EF5.Models
     {
         [Key]
         [ForeignKey("Instructor")]
-        public int InstructorID { get; set; }
+        public int PersonID { get; set; }
         [StringLength(50)]
         [Display(Name = "Office Location")]
         public string Location { get; set; }
