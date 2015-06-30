@@ -10,7 +10,7 @@ namespace Mvc4EF5.DAL
     {
         private SchoolContext context = new SchoolContext();
         private GenericRepository<Department> departmentRepository;
-        private GenericRepository<Course> courseRepository;
+        private CourseRepository courseRepository;
 
         public GenericRepository<Department> DepartmentRepository
         {
@@ -25,14 +25,14 @@ namespace Mvc4EF5.DAL
             }
         }
 
-        public GenericRepository<Course> CourseRepository
+        public CourseRepository CourseRepository
         {
             get
             {
 
                 if (this.courseRepository == null)
                 {
-                    this.courseRepository = new GenericRepository<Course>(context);
+                    this.courseRepository = new CourseRepository(context);
                 }
                 return courseRepository;
             }

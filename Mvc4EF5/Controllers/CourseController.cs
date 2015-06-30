@@ -154,6 +154,15 @@ namespace Mvc4EF5.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult UpdateCourseCredits(int? multiplier)
+        {
+            if (multiplier != null)
+            {
+                ViewBag.RowsAffected = unitOfWork.CourseRepository.UpdateCourseCredits(multiplier.Value);
+            }
+            return View();
+        }
+
         protected override void Dispose(bool disposing)
         {
             //db.Dispose();
