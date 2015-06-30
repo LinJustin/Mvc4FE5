@@ -12,14 +12,16 @@ namespace Mvc4EF5.Controllers
 {
     public class CourseController : Controller
     {
-        private SchoolContext db = new SchoolContext();
+        //private SchoolContext db = new SchoolContext();
+        private UnitOfWork unitOfWork = new UnitOfWork();
 
         //
         // GET: /Course/
 
         public ActionResult Index()
         {
-            var courses = db.Courses.Include(c => c.Department);
+            //var courses = db.Courses.Include(c => c.Department);
+            var courses = unitOfWork.CourseRepository.Get(includeProperties: "Department");
             return View(courses.ToList());
         }
 
@@ -28,7 +30,8 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Details(int id = 0)
         {
-            Course course = db.Courses.Find(id);
+            //Course course = db.Courses.Find(id);
+            Course course = unitOfWork.CourseRepository.GetByID(id);
             if (course == null)
             {
                 return HttpNotFound();
@@ -56,8 +59,10 @@ namespace Mvc4EF5.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Courses.Add(course);
-                    db.SaveChanges();
+                    //db.Courses.Add(course);
+                    //db.SaveChanges();
+                    unitOfWork.CourseRepository.Insert(course);
+                    unitOfWork.Save();
                     return RedirectToAction("Index");
                 }
             }
@@ -72,9 +77,10 @@ namespace Mvc4EF5.Controllers
 
         private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
         {
-            var departmentsQuery = from d in db.Departments
-                                   orderby d.Name
-                                   select d;
+            //var departmentsQuery = from d in db.Departments
+            //                       orderby d.Name
+            //                       select d;
+            var departmentsQuery = unitOfWork.DepartmentRepository.Get(orderBy: q => q.OrderBy(d => d.Name));
             ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
         } 
 
@@ -83,7 +89,8 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            Course course = db.Courses.Find(id);
+            //Course course = db.Courses.Find(id);
+            Course course = unitOfWork.CourseRepository.GetByID(id);
             PopulateDepartmentsDropDownList(course.DepartmentID);
             return View(course);
         }
@@ -99,8 +106,10 @@ namespace Mvc4EF5.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Entry(course).State = EntityState.Modified;
-                    db.SaveChanges();
+                    //db.Entry(course).State = EntityState.Modified;
+                    //db.SaveChanges();
+                    unitOfWork.CourseRepository.Update(course);
+                    unitOfWork.Save();
                     return RedirectToAction("Index");
                 }
             }
@@ -117,7 +126,8 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Delete(int id = 0)
         {
-            Course course = db.Courses.Find(id);
+            //Course course = db.Courses.Find(id);
+            Course course = unitOfWork.CourseRepository.GetByID(id);
             if (course == null)
             {
                 return HttpNotFound();
@@ -132,15 +142,19 @@ namespace Mvc4EF5.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Course course = db.Courses.Find(id);
-            db.Courses.Remove(course);
-            db.SaveChanges();
+            //Course course = db.Courses.Find(id);
+            //db.Courses.Remove(course);
+            //db.SaveChanges();
+            Course course = unitOfWork.CourseRepository.GetByID(id);
+            unitOfWork.CourseRepository.Update(course);
+            unitOfWork.Save();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            //db.Dispose();
+            unitOfWork.Dispose();
             base.Dispose(disposing);
         }
     }

@@ -14,75 +14,16 @@ namespace Mvc4EF5.Controllers
 {
     public class StudentController : Controller
     {
-        private SchoolContext db = new SchoolContext();
+        //private SchoolContext db = new SchoolContext();
+        private IStudentRepository studentRepository;
+
+        public StudentController()
+        {
+            this.studentRepository = new StudentRepository(new SchoolContext());
+        }
 
         //
         // GET: /Student/
-
-        //public ActionResult Index()
-        //{
-        //    return View(db.Students.ToList());
-        //}
-
-
-        //sort
-        //public ActionResult Index(string sortOrder)
-        //{
-        //    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
-        //    ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
-
-        //    var students = from s in db.Students
-        //                   select s;
-        //    switch (sortOrder)
-        //    {
-        //        case "Name_desc":
-        //            students = students.OrderByDescending(s => s.LastName);
-        //            break;
-        //        case "Date":
-        //            students = students.OrderBy(s => s.EnrollmentDate);
-        //            break;
-        //        case "Date_desc":
-        //            students = students.OrderByDescending(s => s.EnrollmentDate);
-        //            break;
-        //        default:
-        //            students = students.OrderBy(s => s.LastName);
-        //            break;
-        //    }
-        //    return View(students.ToList());
-        //}
-
-        //public ViewResult Index(string sortOrder, string searchString)
-        //{
-        //    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "Name_desc" : "";
-        //    ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
-
-        //    var students = from s in db.Students
-        //                   select s;
-
-        //    if (!String.IsNullOrEmpty(searchString))
-        //    {
-        //        students = students.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper())
-        //            || s.FirstMidName.ToUpper().Contains(searchString.ToUpper()));
-        //    }
-
-        //    switch (sortOrder)
-        //    {
-        //        case "Name_desc":
-        //            students = students.OrderByDescending(s => s.LastName);
-        //            break;
-        //        case "Date":
-        //            students = students.OrderBy(s => s.EnrollmentDate);
-        //            break;
-        //        case "Date_desc":
-        //            students = students.OrderByDescending(s => s.EnrollmentDate);
-        //            break;
-        //        default:
-        //            students = students.OrderBy(s => s.LastName);
-        //            break;
-        //    }
-        //    return View(students.ToList());
-
-        //}
 
         public ViewResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
@@ -100,7 +41,7 @@ namespace Mvc4EF5.Controllers
             }
             ViewBag.CurrentFilter = searchString;
 
-            var students = from s in db.Students
+            var students = from s in studentRepository.GetStudents()
                            select s;
 
             if (!String.IsNullOrEmpty(searchString))
@@ -137,7 +78,7 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Details(int id = 0)
         {
-            Student student = db.Students.Find(id);
+            Student student = studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -164,8 +105,8 @@ namespace Mvc4EF5.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Students.Add(student);
-                    db.SaveChanges();
+                    studentRepository.InsertStudent(student);
+                    studentRepository.Save();
                     return RedirectToAction("Index");
                 }
             }
@@ -182,7 +123,7 @@ namespace Mvc4EF5.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            Student student = db.Students.Find(id);
+            Student student = studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -201,8 +142,8 @@ namespace Mvc4EF5.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Entry(student).State = EntityState.Modified;
-                    db.SaveChanges();
+                    studentRepository.UpdateStudent(student);
+                    studentRepository.Save();
                     return RedirectToAction("Index");
                 }
             }
@@ -222,7 +163,7 @@ namespace Mvc4EF5.Controllers
             {
                 ViewBag.ErrorMessage = "Delete failed.";
             }
-            Student student = db.Students.Find(id);
+            Student student = studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -239,9 +180,9 @@ namespace Mvc4EF5.Controllers
         {
             try
             {
-                Student student = db.Students.Find(id);
-                db.Students.Remove(student);
-                db.SaveChanges();
+                Student student = studentRepository.GetStudentByID(id);
+                studentRepository.DeleteStudent(id);
+                studentRepository.Save();
             }
             catch (DataException)
             {
@@ -252,7 +193,7 @@ namespace Mvc4EF5.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            studentRepository.Dispose();
             base.Dispose(disposing);
         }
     }
