@@ -54,6 +54,12 @@ namespace Mvc4EF5.DAL
             return dbSet.Find(id);
         }
 
+        public virtual IEnumerable<TEntity> GetWithRawSql(string query, params object[] parameters)
+        {
+            return dbSet.SqlQuery(query, parameters).ToList();
+        }
+
+
         public virtual void Insert(TEntity entity)
         {
             dbSet.Add(entity);

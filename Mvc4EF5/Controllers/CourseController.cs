@@ -31,7 +31,10 @@ namespace Mvc4EF5.Controllers
         public ActionResult Details(int id = 0)
         {
             //Course course = db.Courses.Find(id);
-            Course course = unitOfWork.CourseRepository.GetByID(id);
+            //Course course = unitOfWork.CourseRepository.GetByID(id);
+            var query = "SELECT * FROM Course WHERE CourseID = @p0";
+            Course course = unitOfWork.CourseRepository.GetWithRawSql(query, id).Single();
+
             if (course == null)
             {
                 return HttpNotFound();
